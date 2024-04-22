@@ -19,15 +19,15 @@ def web_browser():
 def test_search_relevance(web_browser):
     # Открыть сайт
     web_browser.get("https://shopiland.ru/")
-
+    time.sleep(5)
     # Ввести запрос в поиск
     search_input = web_browser.find_element(By.XPATH, "//input[@type='text']")
     search_input.send_keys("кошелек")
-
+    time.sleep(5)
     # Нажать кнопку поиска
     search_button = web_browser.find_element(By.XPATH, "//button[@type='submit']")
     search_button.click()
-
+    time.sleep(5)
     # Проверить результаты поиска
     search_results = WebDriverWait(web_browser, 10).until(
         EC.presence_of_all_elements_located((By.XPATH, "//p[@class='css-99ww93']"))
@@ -49,8 +49,12 @@ def test_sort_by_popularity(web_browser):
     search_input = web_browser.find_element(By.XPATH, "//input[@type='text']")
     search_input.send_keys("кошелек")  # Пример запроса для теста
 
+    # Нажать кнопку поиска
+    search_button = web_browser.find_element(By.XPATH, "//button[@type='submit']")
+    search_button.click()
+    time.sleep(5)
     # Нажать на сортировку по популярности
-    popularity_sort_button = web_browser.find_element(By.XPATH, '//div[@class=MuiBox-root and text(),"популярности"]')
+    popularity_sort_button = web_browser.find_element(By.XPATH, '//button[@type="button" and @value="popular"]')
     popularity_sort_button.click()  # Пример выбора сортировки по рейтингу
 
     # Проверить, что первый товар имеет больше всего отзывов (считаем по кол-ву отзывов)
