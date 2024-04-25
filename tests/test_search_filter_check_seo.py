@@ -32,8 +32,6 @@ def test_search_relevance(web_browser):
     search_results = WebDriverWait(web_browser, 10).until(
         EC.presence_of_all_elements_located((By.XPATH, "//p[@class='css-99ww93']"))
     )
-    #assert len(search_results) > 0, "No search results found"
-
     # Проверка релевантности результатов
     for result in search_results:
         title_element = result.find_element(By.XPATH, "//p[@class='css-99ww93']")
