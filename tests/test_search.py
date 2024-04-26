@@ -3,8 +3,8 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pages.base import HomePage, SearchResultsPage, ProductPage, SearchResultsMarketplaces
-from pages.locators import HomePageLocators, ProductPageLocators, SearchResultsPageLocators
+from pages.base import HomePage, SearchResultsPage, SearchResultsMarketplaces
+from pages.locators import HomePageLocators, ProductPageLocators
 
 def read_search_text():
     with open("text_search.txt", "r", encoding="utf-8") as file:
@@ -31,7 +31,7 @@ def test_search_relevance(web_browser):
     for result in search_results:
         product_title = result.text.lower()
         assert search_text.lower() in product_title, f"Результат поиска не соответствует запросу: {product_title}"
-
+    print(f"Результат поиска соответствует запросу: {search_text} = {product_title}")
 
 def test_search_marketplace(web_browser):
     home_page = HomePage(web_browser)
@@ -60,7 +60,7 @@ def test_search_marketplace(web_browser):
                 product_text_parts = product_element.text.split()
 
                 if len(product_text_parts) > 1:
-                    number_of_products_text = product_text_parts[1]  # Вторая часть текста (количество товаров)
+                    number_of_products_text = product_text_parts[1]  # количество товаров
 
                     # Пробуем преобразовать текст в целое число
                     try:
@@ -119,8 +119,13 @@ def test_seo_check(web_browser):
         assert alt_attribute, "Отсутствует атрибут alt у изображения"
 
 
-#Результаты поиска должны быть релевантны запросу;
-#товары должны быть во всех магазинах.
+#Результаты поиска должны быть релевантны запросу;+
+#товары должны быть во всех магазинах.+
 #Если в каком-то маркетплейсе не оказалось товаров,
 #то следует проверить его выдачу прямым запросом на сайт маркетплейса.
+
+#Проверьте отображение товаров для выбранного города.
+#Для этого запросите результаты в определенном магазине.
+#Товары сравниваются, так как парсеры параллельно выполняют запрос
+#пользователя во всех магазинах с выбранным городом.
 

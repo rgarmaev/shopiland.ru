@@ -52,7 +52,7 @@ class SearchResultsMarketplaces:
         }
 
     def get_marketplace_oz(self):
-        return self.driver.find_element(*self.locators.MARKETPLACE_LINKS_OZ)
+        return self.driver.find_elements(*self.locators.MARKETPLACE_LINKS_OZ)
 
     def get_marketplace_al(self):
         return self.driver.find_elements(*self.locators.MARKETPLACE_LINKS_AL)
