@@ -2,6 +2,8 @@ import time
 import logging
 import pytest
 from selenium import webdriver
+from selenium.common import StaleElementReferenceException
+from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -94,82 +96,35 @@ def test_search_marketplace(web_browser):
 
 def test_marketplace_search_results(web_browser):
     # Функция для выполнения поиска на странице маркетплейса
-    home_page_url = 'https://shopiland.ru/'
-    def search_on_marketplace(home_page_url, search_text, marketplace_name, button_locator, product_titles_locator,
-                              search_input_locator):
-        home_page = HomePage(web_browser)
-        home_page.open(home_page_url)
-        time.sleep(10)
+    home_page = HomePage(web_browser)
+    home_page_url = 'https://megamarket.ru/'
+    home_page.open(home_page_url)
+    time.sleep(10)
+    # Ожидание кнопки закрытия баннера на странице маркетплейса
+    #web_browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    marketplace_close_button = WebDriverWait(web_browser, 10).until(
+        EC.element_to_be_clickable(pages.locators.HomePageLocators.MARKETPLACE_CLOSE_SM)
+    )
+    marketplace_close_button.click()
+    logging.info("Попытка нажать кнопку поиска")
+    # Выполняем поиск на странице маркетплейса
+    search_text = read_search_text()
+    time.sleep(5)
+    # Ожидание окна ввода на странице маркетплейса
+    marketplace_search_input = WebDriverWait(web_browser, 10).until(
+        EC.element_to_be_clickable(SearchResultsLocatorMarketplaces.SEARCH_INPUT_SM)
+    )
+    marketplace_search_input.clear()
+    marketplace_search_input.send_keys(search_text)
+    marketplace_search_input.send_keys(Keys.ENTER)
+    time.sleep(10)
+    results_page = SearchResultsMarketplaces(web_browser)
+    search_results = results_page.get_product_titles_sm()
 
-        # Нажимаем кнопку закрытия если это маркетплейс "Megamarket" ('sm')
-        if marketplace_name == 'sm':
-            marketplace_close_button = WebDriverWait(web_browser, 30).until(
-                EC.element_to_be_clickable(pages.locators.HomePageLocators.MARKETPLACE_CLOSE_SM)
-            )
-            marketplace_close_button.click()
-            home_page.click_close_button(pages.locators.HomePageLocators.MARKETPLACE_CLOSE_SM)
-
-            # Пример логирования перед попыткой нажать кнопку поиска
-            logging.info("Попытка нажать кнопку поиска")
-
-            # Ожидание появления кнопки поиска на странице
-            search_button = WebDriverWait(web_browser, 10).until(
-                EC.element_to_be_clickable(button_locator)
-            )
-
-            # Нажатие на кнопку поиска
-            search_button.click()
-
-        # Выполняем поиск на странице маркетплейса
-        home_page.search_product(search_text, search_input_locator, button_locator)
-
-        # Добавляем небольшую задержку перед поиском элементов
-        time.sleep(5)
-
-        results_page = SearchResultsMarketplaces(web_browser)
-        # Динамически вызываем метод get_product_titles_ {marketplace_name}
-        return getattr(results_page, f'get_product_titles_{marketplace_name}')()
-
-    # Данные для поиска и соответствующие URL маркетплейсов
-    search_text = read_search_text()  # Функция для загрузки текста запроса из файла или переменной
-    marketplace_data = {
-        'sm': {'url': 'https://megamarket.ru',
-               'button': pages.locators.SearchResultsLocatorMarketplaces.MARKETPLACE_SEARCH_BUTTON_SM,
-               'product_titles': pages.locators.SearchResultsLocatorMarketplaces.MARKETPLACE_PRODUCT_TITLES_SM,
-               'search_input': pages.locators.SearchResultsLocatorMarketplaces.SEARCH_INPUT_SM}
-    }
-
-    ym_search_successful = False  # Флаг успешного поиска на маркетплейсе Yandex Market
-
-    for marketplace_name, data in marketplace_data.items():
-        # Проверяем, на каком маркетплейсе не найдены товары
-        if marketplace_name not in marketplaces_with_products_not_found:
-            continue  # Пропускаем маркетплейсы, где товары уже были найдены
-        time.sleep(15)
-        # Выполняем поиск на маркетплейсе
-        search_results = search_on_marketplace(data['url'], search_text, marketplace_name,
-                                               data['button'], data['product_titles'], data['search_input'])
-
-        if not search_results:
-            print(f"На маркетплейсе {marketplace_name} не найдено ни одного товара")
-            if marketplace_name == 'ym':
-                ym_search_successful = False
-            continue  # Переходим к следующему маркетплейсу
-
-        # Проверяем результаты поиска
-        for result in search_results:
-            product_title = result.text
-            assert search_text.lower() in product_title.lower(), f"Товар '{product_title}' на маркетплейсе {marketplace_name} не соответствует запросу '{search_text}'"
-
-        print(f"Товары найдены на маркетплейсе {marketplace_name}")
-        if marketplace_name == 'ym':
-            ym_search_successful = True
-
-    # Если на маркетплейсе Yandex Market не удалось найти товары, не пропускаем маркетплейс "sm"
-    if not ym_search_successful:
-        print("Поиск на маркетплейсе Yandex Market неуспешен. Продолжаем поиск на других маркетплейсах.")
-        marketplaces_with_products_not_found.clear()  # Очищаем список маркетплейсов без товаров
-
+    for result in search_results:
+        product_title = result.text.lower()
+        assert search_text.lower() in product_title, f"Результат поиска не соответствует запросу: {product_title}"
+    print(f"Результат поиска соответствует запросу: {search_text} = {product_title}")
 
 def test_sort_by_popularity(web_browser):
     home_page = HomePage(web_browser)
@@ -203,12 +158,28 @@ def test_sort_by_rating(web_browser):
     )
     rating_sort_button.click()
 
+    # Получаем список отзывов о продуктах
     product_reviews = results_page.get_product_reviews()
-    reviews_counts = [int(review.text.split()[0]) for review in product_reviews]
 
+    # Создаем пустой список для сохранения количества отзывов
+    reviews_counts = []
+
+    # Итерируемся по каждому элементу списка отзывов
+    for review in product_reviews:
+        # Пытаемся получить текст элемента отзыва
+        try:
+            review_text = review.text
+        except StaleElementReferenceException:
+            # Если элемент стал устаревшим, пропускаем его
+            continue
+
+        # Разбиваем текст отзыва и получаем количество отзывов
+        review_count = int(review_text.split()[0])
+        reviews_counts.append(review_count)
+
+    # Проверяем, что первый товар имеет наибольший рейтинг
     first_product_reviews = reviews_counts[0]
     assert first_product_reviews >= max(reviews_counts[1:]), "Первый товар не имеет наибольший рейтинг"
-
 def test_seo_check(web_browser):
     home_page = HomePage(web_browser)
     home_page.open('https://shopiland.ru/')

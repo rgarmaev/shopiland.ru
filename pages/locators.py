@@ -5,7 +5,7 @@ class HomePageLocators:
     SEARCH_BUTTON = (By.XPATH, "//button[@type='submit']")
     CANONICAL_LINK = (By.XPATH, "//link[@rel='canonical']")
     ALL_IMAGES = (By.XPATH, "//img")
-    MARKETPLACE_CLOSE_SM = (By.XPATH, "//*[name()='svg'][@class='svg-icon']") #//*[name()='svg'][@class='svg-icon']
+    MARKETPLACE_CLOSE_SM = (By.XPATH, "//button[@type='button' and @class='close-button mass-communication__close']") #//*[name()='svg'][@class='svg-icon']
 class SearchResultsPageLocators:
     PRODUCT_TITLES = (By.XPATH, "//p[@class='css-99ww93']")
 
@@ -19,7 +19,7 @@ class SearchResultsLocatorMarketplaces:
     MARKETPLACE_LINKS_KE = (By.XPATH, "//span[contains(text(), 'KazanExpress') and contains (@calss, css-18woau7)]")
     PRODUCT_TITLES = (By.XPATH, "//p[@class='css-99ww93']")
     MARKETPLACE_SEARCH_BUTTON_YM = (By.XPATH, "//input[@type='text']")
-    MARKETPLACE_SEARCH_BUTTON_SM = (By.XPATH, "//button[@type='submit' and contains(@aria-label, 'Искать')]")
+    MARKETPLACE_SEARCH_BUTTON_SM = (By.XPATH, "//button[@aria-label='Искать']")
     SEARCH_INPUT_SM = (By.XPATH, "//input[@type='search' and contains(@placeholder, 'Искать')]") #button.sumbit //input[@type='search']
     SEARCH_INPUT_YM = (By.XPATH, "//input[@type='text']")
     MARKETPLACE_PRODUCT_TITLES_YM = (By.XPATH, "//p[@role='link']")

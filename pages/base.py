@@ -22,7 +22,7 @@ class HomePage:
         search_button.click()
 
     def click_close_button(self, by_locator):
-        return self.driver.find_element(*by_locator)
+        return self.driver.find_elements(*by_locator)
 
     def get_element(self, by_locator):
         return self.driver.find_element(*by_locator)
@@ -41,6 +41,8 @@ class SearchResultsPage:
 
     def get_product_reviews(self):
         return self.driver.find_elements(*ProductPageLocators.PRODUCT_REVIEWS)
+
+
 
 
 class SearchResultsMarketplaces:
